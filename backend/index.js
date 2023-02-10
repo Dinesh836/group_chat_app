@@ -5,8 +5,8 @@ const app = express();
 
 mongoose.connect("mongodb://localhost:27017/shop", {useNewUrlParser: true, useUnifiedTopology: false})
 .then(result => {
-    app.listen(3000, () => {
-        console.log(`App listening on port 3000.`)
+    app.listen(process.env.PORT, () => {
+        console.log(`App listening on port ${process.env.PORT}.`)
     });
 }).catch(err => console.log(err))
 
