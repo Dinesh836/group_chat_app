@@ -4,7 +4,7 @@ const Schema   = mongoose.Schema;
 const GroupSchema = new Schema({
     _id : String , 
     name : String , 
-    admin:String , 
+    admin: String , 
     members : Array , 
 
 }, {versionKey:false, timestamps:true})

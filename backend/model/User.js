@@ -8,6 +8,7 @@ const UserSchema = new Schema({
     mobile :String , 
     password :String ,
     frnds : Array , 
+    lastLoggedinTime : Date
 
 }, {versionKey:false, timestamps:true})
 
