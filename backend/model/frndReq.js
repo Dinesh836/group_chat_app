@@ -6,7 +6,8 @@ const FrndReqSchema = new Schema({
     to : String , 
     from:String , 
     status : String , 
-    response : {type : Boolean , default : false }
+    response : {type : Boolean , default : false } , 
+    resAt : Date
 
 }, {versionKey:false, timestamps:true})
 

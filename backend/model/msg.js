@@ -5,7 +5,7 @@ const MsgSchema = new Schema({
     _id: String,
     sender: String,
     receiver: String,
-    msg: Object, // {type :  "text/image/doc"  , body :   } 
+    msg: Array,
     source: String,
 
 }, { versionKey: false, timestamps: true })

@@ -5,5 +5,7 @@ const userController = require('../controller/user')
 router.post("/signup" , userController.signup)
 router.post("/login" , userController.login)
 router.get("/fetchAllUser" , userController.fetchAllUser)
+router.post("/fetchFrndsforUser/:id" , userController.fetchFrndsforUser)
+
 
 module.exports = router

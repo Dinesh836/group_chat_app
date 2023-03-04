@@ -85,3 +85,31 @@ exports.fetchAllUser = async (req , res ) => {
     }
     console.log("fetchAllUser")
 }
+
+exports.fetchFrndsforUser = async (req , res ) => {
+    try{
+        let { id } = req.params
+        let frndsForUser = await User.find({_id : id} , {frnds : 1}).lean()
+
+        if(frndsForUser){
+            let frndsData =  await User.aggregate([
+                {
+                    $match : {_id : {$in : frndsForUser[0].frnds}}
+                } , 
+                {
+                    $project :{
+                        name : 1
+                    }
+                }
+            ])
+            if(frndsData && frndsData.length){
+                res.status(200).send({status : 200 , data : frndsData})
+            }else{
+                res.status(200).send({status : 200 , data : frndsData , message : "no frnds for this user "})
+            }
+        }
+    }catch(err){
+        console.log("error in fetchFrndsforUser" , err)
+        res.status(500).send({status : 500 , message : "something went wrong"})
+    }
+}
