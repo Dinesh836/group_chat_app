@@ -1,5 +1,6 @@
 const express = require("express")
 const User = require("../model/User")
+const Frnds = require("../model/frnds")
 let UUID = require("uuid")
 
 exports.signup = async(req , res ) => {
@@ -95,13 +96,24 @@ exports.fetchFrndsforUser = async (req , res ) => {
             let frndsData =  await User.aggregate([
                 {
                     $match : {_id : {$in : frndsForUser[0].frnds}}
-                } , 
+                } ,
                 {
                     $project :{
-                        name : 1
+                        name : 1,
                     }
                 }
             ])
+
+            let members = await Frnds.find({members : id} , {members : 1}).lean()
+
+            for(let frnd of frndsData){
+                for( let member of members){
+                    if(member.members.includes(frnd._id)){
+                        frnd.chatId = member._id
+                    }
+                }
+            }
+
             if(frndsData && frndsData.length){
                 res.status(200).send({status : 200 , data : frndsData})
             }else{

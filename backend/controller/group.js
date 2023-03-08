@@ -1,9 +1,5 @@
-const express = require("express")
 const Group =  require('../model/Group')
 const UUID = require("uuid")
-exports.editGroup = async (req , res ) => {
-
-}
 
 exports.createGroup = async (req , res ) => {
     // console.log("createGroup")
@@ -67,3 +63,111 @@ exports.fetchGroupsforUser = async (req , res ) => {
     }
 
 }
+
+exports.fetchMembersOfGroup = async ( req , res ) => {
+    try {
+        let { id } = req.params
+
+        let grpMembers = await Group.aggregate([
+            {
+                $match :{_id : id}
+            } , 
+            {
+                $unwind : "$members"
+            } ,
+            {
+                $lookup :{
+                    from :"User" , 
+                    foreignField :"_id" ,
+                    localField : "members" ,
+                    as :"userData"
+                }
+            } , 
+            {
+                $unwind : "$userData"
+            } , 
+            {
+                $project :{
+                    _id :0 ,
+                    memberId : "$userData._id" , 
+                    name : "$userData.name",
+                    lastLogin :"$userData.lastLoggedinTime"
+                    //profilePhotoUrl : "$userData.profileUrl"
+                }
+            }
+        ])
+
+        if(grpMembers && grpMembers.length) {
+            res.status(200).send({status : 200 , data :grpMembers })
+        }
+
+    } catch(err) {
+        console.log("Error in fetchMembersOfGroup api" , err)
+        res.status(500).send({status : 500 , message : err.message})
+    }
+
+
+
+}
+
+exports.addAdmin = async (req , res) => {
+    try {
+        let { id } = req.params
+        let { admin } =  req.body
+        let addAdmin = await Group.updateOne({ _id :id } , {$push :{admin : {$each : admin}}})
+
+        if(addAdmin && addAdmin.matchedCount === 1){
+            res.status(200).send({status : 200 , message :"admin added successfully"})
+        }
+    } catch (err){
+        console.log("error in make Admin" , err)
+        res.status(500).send({status : 500 , message : err.message})
+    }
+}
+
+exports.removeMembers = async (req , res) => {
+    try {
+        let { id } = req.params
+        let { admin , members } =  req.body
+
+        let checkAdmin = await Group.findOne({_id : id , admin : {$in :admin }}).lean()
+
+        if(!checkAdmin){
+            res.status(400).send({status : 400 , message : `user is not admin of this group`})
+        }
+        if(checkAdmin){
+            let updateMembers = await Group.updateOne({_id :id} , { $pull :{members :{$in : members}}})
+
+            if(updateMembers && updateMembers.matchedCount === 1){
+                res.status(200).send({status : 200 , message :"members removed successfully"})
+            }
+        }
+    } catch (err){
+        console.log("error in removeMembers " , err)
+        res.status(500).send({status : 500 , message : err.message})
+    }
+}
+
+exports.addMembers = async (req , res) => {
+    try {
+        let { id } = req.params
+        let { admin , members } =  req.body
+
+        let checkAdmin = await Group.findOne({_id : id , admin : {$in :admin }}).lean()
+
+        if(!checkAdmin){
+            res.status(400).send({status : 400 , message : `user is not admin of this group`})
+        }
+        if(checkAdmin){
+            let updateMembers = await Group.updateOne({_id :id} , { $push :{members :{$each : members}}})
+
+            if(updateMembers && updateMembers.matchedCount === 1){
+                res.status(200).send({status : 200 , message :"members added successfully"})
+            }
+        }
+    } catch (err){
+        console.log("error in addMembers " , err)
+        res.status(500).send({status : 500 , message : err.message})
+    }
+}
+
