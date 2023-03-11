@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const FrndsSchema = new Schema({
     _id: String,
     members: Array,
-    msges: Array
+    msges: Array,
+    msgDeleteHistory: Array
 }, { versionKey: false, timestamps: true })
 
 module.exports = mongoose.model('Frnds', FrndsSchema, 'Frnds');

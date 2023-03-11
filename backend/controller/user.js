@@ -87,6 +87,29 @@ exports.fetchAllUser = async (req , res ) => {
     console.log("fetchAllUser")
 }
 
+exports.unFrnd = async (req ,res ) => {
+    try{
+        let { id } = req.params
+        let { userId } = req.body
+
+        let userDetails =  await User.findOne({_id : userId}).lean()
+
+        if(userDetails && !userDetails.frnds.includes(id)){
+            res.status(400).send({status:400 , message:`this is not frnd of user`})
+        }else {
+            let updateFrnds =  await User.updateOne({_id : userId} , {$pull : {frnds : id}})
+
+            if(updateFrnds && updateFrnds.matchedCount === 1){
+                res.status(200).send({status:200 , message : "successfully unfrnd the frnd"})
+            }
+        }
+    } catch(err){
+        console.log( "error in unFrnd api" , err)
+        res.status(500).send({status:500 , message:err.message})
+    }
+
+}
+
 exports.fetchFrndsforUser = async (req , res ) => {
     try{
         let { id } = req.params

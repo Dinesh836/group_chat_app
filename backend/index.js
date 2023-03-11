@@ -14,14 +14,8 @@ const authMiddeleware = require('./middelware/auth')
 
 const app = express();
 
-
-
-// Define a simple route
-
 //middleware 
 app.use(express.json())
-
-
 app.use(cors())
 
 //routes
@@ -34,7 +28,7 @@ app.use("/notification" , notification_route)
 mongoose.connect( process.env.BD_URI, {useNewUrlParser: true, useUnifiedTopology: false})
 .then(result => {
     app.listen(process.env.PORT, () => {
-        console.log(`App listening on port ${process.env.PORT}.`)
+        console.log(`App listening on port ${process.env.PORT}`)
     });
 }).catch(err => console.log(err))
 

@@ -1,4 +1,5 @@
 const Group =  require('../model/Group')
+const utility = require("../util/utility")
 const UUID = require("uuid")
 
 exports.createGroup = async (req , res ) => {
@@ -31,7 +32,7 @@ exports.deleteGroup = async (req , res ) => {
         let {id} = req.params
         let deleteGroup
         if (id){
-             deleteGroup = await Group.deleteOne({_id : id})
+             deleteGroup = await Group.deleteOne({_id : id}).lean()
         }
         if(deleteGroup){
             res.status(200).send({status : 200 , message :" successfully deleted group "})
@@ -171,3 +172,30 @@ exports.addMembers = async (req , res) => {
     }
 }
 
+exports.editGroup = async (req , res ) => {
+    try{
+        let { id } = req.params
+        let { userId , description , name  } = req.body
+
+        let checkAdmin = await utility.checkAdmin( id , userId)
+        console.log(checkAdmin)
+
+        if(!checkAdmin){
+            return res.status(400).send({status : 400 , message :"user is not admin of this group"})
+        }
+        let updateObj = {}
+        if(name) updateObj["name"] = name
+        if(description) updateObj["description"] = description
+
+        let updateGroup = await Group.updateOne({_id : id } , updateObj)
+
+        console.log(updateGroup)
+
+        if(updateGroup && updateGroup.matchedCount === 1){
+            res.status(200).send({status : 200 , message : "successfully upadte group information "})
+        }
+    }catch(err){
+        console.log("error in aditGroup api" , err)
+        res.status(500).send({status : 500 , message : err.message})
+    }
+}
